@@ -1,0 +1,16 @@
+version: '3'
+service:
+  wishlist:
+    build: ./flask
+    networks:
+      - flask-net
+
+  server:
+    build: ./nginx
+    ports:
+      - "8080:8080"
+    networks:
+      - flask-net
+
+  networks:
+    flask-net:

@@ -79,7 +79,7 @@ def getDatabase():
     return g.db
 
 @app.teardown_appcontext
-def closeDatabase(exec):
+def closeDatabase(exe):
     db = g.pop('db', None)
 
     if db is not None:
@@ -90,4 +90,4 @@ if __name__ == '__main__':
 
     app.config['SESSION_TYPE'] = 'filesystem'
     app.debug = True
-    app.run(host='0.0.0.0', port=80)
+    app.run(host='0.0.0.0', port=5000)
