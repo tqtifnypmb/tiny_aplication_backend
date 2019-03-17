@@ -18,46 +18,79 @@ def greet():
 @app.route('/login', methods=['POST'])
 def login():
     username = request.args.get('username')
-    password = request.args.get('password')
+    open_id = request.args.get('open_id')
 
-    checkArguments(username, password)
+    checkArguments(username, open_id)
         
     db = getDatabase()
-    userID = db.userValidate(username, password)
+    userID, username = db.login(open_id)
     if userID is None:
         abort(400)
 
     session['user_id'] = userID
-    return jsonify(msg='login success'), 200
+    return jsonify(username=username), 200
 
-@app.route('/list/')
-def list():
+@app.route('/question/', methods=['GET', 'POST'])
+def question():
     checkLogin()
 
+    db = getDatabase()
+
+    if request.method == 'GET':
+        return _fetchQuestion(request, db)
+    else:
+        uid = session['user_id']
+        return _postQuestion(request, uid, db)
+
+def _fetchQuestion(request, db):
     start = request.args.get('start', 0)
     count = request.args.get('count', 10)
 
-    db = getDatabase()
-    userID = session['user_id']
-    cnt = db.wishlist(userID, start, count)
-    return jsonify(wish_list=cnt), 200
+    questions = db.fetchQuestions(start, count)
+    return jsonify(questions=[q.serialize() for q in questions]), 200
 
-@app.route('/post/', methods=['POST'])
-def post():
+def _postQuestion(request, uid, db):
+    text = request.args['text']
+    if text is None:
+        abort(400)
+    
+    db.insertQuestion(uid, text)
+    return jsonify(msg='ask question success'), 200
+
+@app.route('/answer/', methods=['GET', 'POST'])
+def answer():
     checkLogin()
 
-    userID = session['user_id']
-    title = request.args.get('title')
-    cnt = request.args.get('content')
     db = getDatabase()
 
-    checkArguments(title, cnt, db)
+    if request.method == 'GET':
+        return _fetchAnswer(request, db)
+    else:
+        uid = session['user_id']
+        return _postAnswer(request, uid, db)
 
-    postSuccess = db.post(userID, title, cnt)
-    if not postSuccess:
+def _fetchAnswer(request, db):
+    q_id = request.args['q_id']
+    if q_id is None:
         abort(400)
 
-    return jsonify(msg='post success'), 200
+    start = request.args.get('start', 0)
+    count = request.args.get('count', 10)
+    
+    answers = db.fetchAnswer(q_id, start, count)
+    return jsonify(questions=[a.serialize() for a in answers]), 200
+
+def _postAnswer(request, uid, db):
+    q_id = request.args['q_id']
+    if q_id is None:
+        abort(400)
+    
+    text = request.args['text']
+    if text is None:
+        abort(400)
+
+    db.insertAnswer(uid, q_id, text)
+    return jsonify(msg='answer success'), 200
 
 def checkArguments(*args):
     for arg in args:
@@ -71,7 +104,7 @@ def checkLogin():
 
 def getDatabase():
     if 'db' not in g:
-        g.db = Database('./wish_list')
+        g.db = Database('bucket_list')
 
     if g.db is None:
         abort(400)
@@ -86,8 +119,6 @@ def closeDatabase(exe):
         db.close()
 
 if __name__ == '__main__':
-    Database.createTable('./wish_list', 'schema.sql')
-
     app.config['SESSION_TYPE'] = 'filesystem'
     app.debug = True
     app.run(host='0.0.0.0', port=5000)

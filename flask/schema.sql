@@ -1,17 +1,31 @@
--- drop table if exists user;
--- drop table if exists post;
+CREATE DATABASE `bucket_list` CHARACTER SET 'utf8' COLLATE 'utf8_general_ci';
 
-create table if not exists user (
-    id integer primary key autoincrement,
-    username text unique not null,
-    password text not null
-);
+USE bucket_list;
 
-create table if not exists wish (
-    id integer primary key autoincrement,
-    owner_id integer not null,
-    created timestamp not null default current_timestamp,
-    title text not null,
-    content text not null,
-    foreign key (owner_id) references user (id)
-);
+CREATE TABLE `users` (
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id identify user',
+    `open_id` varchar(128) NOT NULL DEFAULT '0' COMMENT 'wechat openid',
+    `name` varchar(64) NOT NUll DEFAULT '' COMMENT 'nick name',
+    `c_time` int(11) unsigned NOT NUll DEFAULT '0' COMMENT 'user create time',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `questions` (
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id identify question',
+    `owner_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'owner',
+    `content` varchar(1024) NOT NULL DEFAULT '' COMMENT 'question',
+    `c_time` int(11) unsigned NOT NUll DEFAULT '0' COMMENT 'question create time',
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (`owner_id`) REFERENCES users(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `answers` (
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id identify question',
+    `q_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'question id',
+    `owner_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'owner',
+    `content` varchar(1024) NOT NULL DEFAULT '' COMMENT 'answer',
+    `c_time` int(11) unsigned NOT NUll DEFAULT '0' COMMENT 'answer create time',
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (`q_id`) REFERENCES questions(`id`),
+    FOREIGN KEY (`owner_id`) REFERENCES users(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -3,7 +3,7 @@ service:
   wishlist:
     build: ./flask
     networks:
-      - flask-net
+      - flask-net 
 
   server:
     build: ./nginx
