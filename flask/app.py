@@ -23,14 +23,19 @@ def login():
     checkArguments(username, open_id)
         
     db = getDatabase()
-    userID, username = db.login(open_id)
-    if userID is None:
+    result = db.login(open_id)
+    if result is None:
+        db.signup(username, open_id)
+        result = db.login(open_id)
+
+    if result is None:
         abort(400)
 
+    userID, username = result
     session['user_id'] = userID
     return jsonify(username=username), 200
 
-@app.route('/question/', methods=['GET', 'POST'])
+@app.route('/question', methods=['GET', 'POST'])
 def question():
     checkLogin()
 
@@ -51,13 +56,28 @@ def _fetchQuestion(request, db):
 
 def _postQuestion(request, uid, db):
     text = request.args['text']
-    if text is None:
+    title = request.args['title']
+
+    if text is None or title is None:
         abort(400)
     
-    db.insertQuestion(uid, text)
+    db.insertQuestion(uid, title, text)
     return jsonify(msg='ask question success'), 200
 
-@app.route('/answer/', methods=['GET', 'POST'])
+@app.route('/my_answer')
+def myAnswers():
+    checkLogin()
+
+    db = getDatabase()
+
+    start = request.args.get('start', 0)
+    count = request.args.get('count', 10)
+    uid = session['user_id']
+    answers = db.fetchMyAnswers(uid, start, count)
+
+    return jsonify(questions=[a.serialize() for a in answers]), 200
+
+@app.route('/answer', methods=['GET', 'POST'])
 def answer():
     checkLogin()
 
@@ -77,7 +97,7 @@ def _fetchAnswer(request, db):
     start = request.args.get('start', 0)
     count = request.args.get('count', 10)
     
-    answers = db.fetchAnswer(q_id, start, count)
+    answers = db.fetchAnswers(q_id, start, count)
     return jsonify(questions=[a.serialize() for a in answers]), 200
 
 def _postAnswer(request, uid, db):

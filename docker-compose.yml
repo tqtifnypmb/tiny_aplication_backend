@@ -1,0 +1,25 @@
+version: '3'
+services:
+  flaskapp:
+    build: ./flask
+    volumes:
+      - /Users/lizhiliang/Documents/Project/wishlist/wishlist/flask:/usr/app
+    networks:
+      - flask-net 
+    depends_on:
+      - db
+      - server
+
+  server:
+    build: ./nginx
+    ports:
+      - "8080:8080"
+    networks:
+      - flask-net
+
+  db:
+    image: mysql/mysql-server
+
+networks:
+  flask-net:
+    driver: bridge
