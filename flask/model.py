@@ -6,7 +6,7 @@ from flask import current_app
 class Database:
 
     def __init__(self, name):
-        self.db = mysql.connector.connect(user='root', database=name)
+        self.db = mysql.connector.connect(user='root', host='db', database=name)
 
     def _timestamp(self):
         return int(time.time())
