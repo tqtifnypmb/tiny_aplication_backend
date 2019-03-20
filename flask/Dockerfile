@@ -4,4 +4,4 @@ COPY . /usr/app
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
 EXPOSE 5000
 ENV FLASK_ENV=development
-CMD ["sh", "setup.sh"]
+CMD ["python", "app.py"]

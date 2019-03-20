@@ -8,19 +8,18 @@ services:
       - flask-net 
     depends_on:
       - db
-      - server
 
   server:
     build: ./nginx
     ports:
-      - "8080:8080"
+      - 8080:8080
     networks:
       - flask-net
+    depends_on:
+      - flaskapp
 
   db:
     build: ./db
-    ports:
-      - 3306:3306
     volumes:
       - db-data:/var/lib/mysql
     networks: 

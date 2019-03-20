@@ -1,5 +1,8 @@
 FROM mysql/mysql-server
-WORKDIR /usr/app
-COPY my.cnf /etc/mysql/my.cnf
-COPY . /usr/app
-CMD ["sh", "setup.sh"]
+
+COPY schema.sql /docker-entrypoint-initdb.d
+
+ENV MYSQL_ROOT_HOST=172.*.*.*
+ENV MYSQL_USER=wishlist
+ENV MYSQL_DATABASE=bucket_list
+ENV MYSQL_PASSWORD=1816400

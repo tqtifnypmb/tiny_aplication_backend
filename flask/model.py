@@ -6,7 +6,7 @@ from flask import current_app
 class Database:
 
     def __init__(self, name):
-        self.db = mysql.connector.connect(user='root', host='db', database=name)
+        self.db = mysql.connector.connect(user='wishlist', password='1816400', host='db', database=name)
 
     def _timestamp(self):
         return int(time.time())
@@ -35,7 +35,7 @@ class Database:
         return True
 
     def insertQuestion(self, uid, title, text):
-        insert = ("INSERT INTO questions (owner_id, title, content, c_time) VALUES (%s, %s, %s);")
+        insert = ("INSERT INTO questions (owner_id, title, content, c_time) VALUES (%s, %s, %s, %s);")
         cursor = self.db.cursor()
 
         ts = self._timestamp()
