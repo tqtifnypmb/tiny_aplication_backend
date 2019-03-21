@@ -1,7 +1,11 @@
-FROM python:2.7-slim
+FROM ubuntu:latest
 WORKDIR /usr/app
 COPY . /usr/app
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
+RUN apt-get update
+RUN apt-get install -y python3-pip python3-dev 
+RUN ln -s /usr/bin/python3 python
+RUN pip3 install --upgrade pip
+RUN pip3 install --trusted-host pypi.python.org -r requirements.txt
 EXPOSE 5000
 ENV FLASK_ENV=development
-CMD ["python", "app.py"]
+CMD ["uwsgi", "--ini", "wsgi.ini"]
