@@ -3,7 +3,7 @@ services:
   flaskapp:
     build: ./flask
     volumes:
-      - /Users/lizhiliang/Documents/Project/wishlist/wishlist/flask:/usr/app
+      - ./flask:/usr/app
     networks:
       - flask-net 
     depends_on:
