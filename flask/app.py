@@ -19,6 +19,7 @@ def greet():
 def login():
     username = request.args.get('username')
     open_id = request.args.get('open_id')
+    avatar = request.args.get('avatar')
 
     checkArguments(username, open_id)
         
